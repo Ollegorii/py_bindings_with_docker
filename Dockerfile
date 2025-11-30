@@ -4,18 +4,14 @@ RUN apt-get update && apt-get install -y \
     cmake g++ python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install numpy pybind11
+RUN pip install pybind11 build
 
 WORKDIR /app
 
-COPY svd.cpp svd.h bindings.cpp test_svd.py pyproject.toml CMakeLists.txt ./
+COPY svd.cpp svd.h bindings.cpp pyproject.toml CMakeLists.txt test_svd.py ./
 
-RUN pip wheel . -w dist
+RUN python3 -m build --wheel
 
-# Компиляция pybind11-модуля
-RUN c++ -O3 -shared -std=c++17 -fPIC \
-    $(python3 -m pybind11 --includes) \
-    bindings.cpp svd.cpp \
-    -o svd_cpp$(python3-config --extension-suffix)
+RUN pip install dist/*.whl
 
 CMD ["python", "test_svd.py"]

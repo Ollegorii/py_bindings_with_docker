@@ -1,15 +1,23 @@
 cmake_minimum_required(VERSION 3.12)
-project(svd_cpp)
+project(svd_cpp LANGUAGES CXX)
+
+include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find Python and pybind11
-find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
-find_package(pybind11 CONFIG REQUIRED)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Create Python module
-pybind11_add_module(svd_cpp bindings.cpp svd.cpp)
+find_package(Python 3.10 REQUIRED COMPONENTS Interpreter Development.Module)
+find_package(pybind11 REQUIRED)
 
-# Install target
-install(TARGETS svd_cpp DESTINATION svd_cpp)
+pybind11_add_module(svd_cpp
+    bindings.cpp
+    svd.cpp
+)
+
+target_compile_options(svd_cpp PRIVATE -O3)
+
+install(TARGETS svd_cpp
+    LIBRARY DESTINATION .
+)
